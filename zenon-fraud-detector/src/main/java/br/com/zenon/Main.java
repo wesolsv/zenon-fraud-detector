@@ -2,13 +2,16 @@ package br.com.zenon;
 
 import br.com.zenon.fraud.Customer;
 import br.com.zenon.fraud.Transaction;
+import br.com.zenon.util.TransactionIngestor;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static br.com.zenon.fraud.TypeEnum.*;
 
 public class Main {
-    static void main() {
+    static void main() throws Exception {
         var transaction1 = new Transaction(
                 1,
                 PAYMENT,
@@ -27,7 +30,11 @@ public class Main {
                 true,
                 false);
 
-        IO.println(transaction1.toString());
-        IO.println(transaction2.toString());
+        List<Transaction> transactions = TransactionIngestor.buscaTransacoes("data/dados.csv");
+
+        for(int i = 0 ; i < 10 ; i++){
+            System.out.println(transactions.get(i));
+        }
+
     }
 }
