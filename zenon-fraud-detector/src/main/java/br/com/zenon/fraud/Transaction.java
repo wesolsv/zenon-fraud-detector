@@ -13,13 +13,11 @@ public record Transaction(
         )
 {
         public static Transaction montaTransacao(String[] linha){
-                if(linha.length != 3){}
-
                 String id = linha[0].trim();
                 TypeEnum type = TypeEnum.valueOf(linha[1].trim());
                 BigDecimal amount = new BigDecimal(linha[2].trim());
-                Customer customer = new Customer(linha[3].trim(),  new BigDecimal(linha[4].trim()), new BigDecimal(linha[5].trim()));
-                Customer destination = new Customer(linha[6].trim(),  new BigDecimal(linha[7].trim()), new BigDecimal(linha[8].trim()));
+                Customer customer = new Customer(linha[3].trim(), new BigDecimal(linha[4].trim()), new BigDecimal(linha[5].trim()));
+                Customer destination = new Customer(linha[6].trim(), new BigDecimal(linha[7].trim()), new BigDecimal(linha[8].trim()));
                 boolean isFraud = Boolean.parseBoolean(linha[9].trim());
                 boolean isFlaggedFraud = Boolean.parseBoolean(linha[10].trim());
 

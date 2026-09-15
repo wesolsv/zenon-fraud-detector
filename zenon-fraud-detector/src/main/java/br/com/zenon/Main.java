@@ -4,7 +4,6 @@ import br.com.zenon.fraud.Customer;
 import br.com.zenon.fraud.Transaction;
 import br.com.zenon.util.TransactionIngestor;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class Main {
                 true,
                 false);
 
-        List<Transaction> transactions = TransactionIngestor.buscaTransacoes("data/dados.csv");
+        List<Transaction> transactions = TransactionIngestor.readFile("data/dados.csv");
 
         for(int i = 0 ; i < 10 ; i++){
             System.out.println(transactions.get(i));
