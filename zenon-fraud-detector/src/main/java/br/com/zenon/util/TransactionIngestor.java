@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -14,7 +15,24 @@ import java.util.List;
 
 public class TransactionIngestor {
 
-    public static List<Transaction> readFile(String nomeArquivo) throws IOException {
+    public static List<Transaction> readFileNIO2(String nomeArquivo) {
+        Path path = Paths.get(nomeArquivo);
+        List<Transaction> transactions;
+        try{
+            List<String> strings = Files.readAllLines(path);
+            transactions = strings.stream()
+                    .skip(1)
+                    .limit(1001)
+                    .map(line -> Transaction.montaTransacao(line.split(",")))
+                    .toList();
+        } catch (Exception ex){
+            throw new RuntimeException("Erro na leitura de arquivo", ex);
+        }
+
+        return transactions;
+    }
+
+    public static List<Transaction> readFileNIO(String nomeArquivo) {
         List<Transaction> lista = new ArrayList<>();
         Path path = Paths.get(nomeArquivo);
         StringBuilder dados = new StringBuilder();

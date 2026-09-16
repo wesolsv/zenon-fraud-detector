@@ -29,11 +29,7 @@ public class Main {
                 true,
                 false);
 
-        List<Transaction> transactions = TransactionIngestor.readFile("data/dados.csv");
-
-        for(int i = 0 ; i < 10 ; i++){
-            System.out.println(transactions.get(i));
-        }
-
+        List<Transaction> transactions = TransactionIngestor.readFileNIO2("data/dados.csv");
+        transactions.forEach(System.out::println);
     }
 }
