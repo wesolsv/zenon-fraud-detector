@@ -10,7 +10,7 @@ import java.util.List;
 import static br.com.zenon.fraud.TypeEnum.*;
 
 public class Main {
-    static void main() throws Exception {
+    static void main() {
         var transaction1 = new Transaction(
                 1,
                 PAYMENT,
@@ -29,7 +29,10 @@ public class Main {
                 true,
                 false);
 
-        List<Transaction> transactions = TransactionIngestor.readFileNIO2("data/dados.csv");
-        transactions.forEach(System.out::println);
+//        List<Transaction> transactions = TransactionIngestor.read("data/dados.csv");
+//        transactions.stream().limit(10).forEach(System.out::println);
+
+        List<Transaction> transactionsBadData = TransactionIngestor.read("data/paysim_with_bad_data.csv");
+        transactionsBadData.forEach(IO::println);
     }
 }
