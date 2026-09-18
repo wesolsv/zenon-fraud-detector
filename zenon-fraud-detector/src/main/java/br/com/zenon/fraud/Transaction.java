@@ -37,8 +37,8 @@ public record Transaction(
             BigDecimal amount = new BigDecimal(linha[2]);
             Customer origin = new Customer(linha[3], new BigDecimal(linha[4]), new BigDecimal(linha[5]));
             Customer recipient = new Customer(linha[6], new BigDecimal(linha[7]), new BigDecimal(linha[8]));
-            boolean isFraud = Boolean.parseBoolean(linha[9]);
-            boolean isFlaggedFraud = Boolean.parseBoolean(linha[10]);
+            boolean isFraud = "1".equals(linha[9]);
+            boolean isFlaggedFraud = "1".equals(linha[10]);
 
             return Optional.of(new Transaction(step, TypeEnum.valueOf(type), amount, origin, recipient, isFraud, isFlaggedFraud));
 

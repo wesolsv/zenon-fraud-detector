@@ -1,6 +1,7 @@
 package br.com.zenon;
 
 import br.com.zenon.fraud.Customer;
+import br.com.zenon.fraud.FraudAnalyzer;
 import br.com.zenon.fraud.Transaction;
 import br.com.zenon.util.TransactionIngestor;
 
@@ -29,10 +30,21 @@ public class Main {
                 true,
                 false);
 
-//        List<Transaction> transactions = TransactionIngestor.read("data/dados.csv");
-//        transactions.stream().limit(10).forEach(System.out::println);
+        List<Transaction> transactions = TransactionIngestor.read("data/dados.csv");
+        transactions.forEach(IO::println);
 
-        List<Transaction> transactionsBadData = TransactionIngestor.read("data/paysim_with_bad_data.csv");
-        transactionsBadData.forEach(IO::println);
+        FraudAnalyzer.countFrauds(transactions);
+        List<Transaction> fraudsTransactions = FraudAnalyzer.biggerFrauds(transactions, 3);
+        IO.println("\n2. Lista Top(3) Fraudes: \n");
+        fraudsTransactions.forEach(l -> IO.println("Origin Name: " + l.origin().name() + " === Amount: " + l.amount()));
+        IO.println("\n3. Lista Maiores Suspeitos: \n");
+        FraudAnalyzer.getClientsFrauds(transactions);
+        IO.println("\n4. Prejuizo Total: \n");
+        FraudAnalyzer.calcularTotal(transactions);
+        IO.println("\n5. Fraudes por Tipo:\n");
+        FraudAnalyzer.countWithType(transactions);
+
+//        List<Transaction> transactionsBadData = TransactionIngestor.read("data/paysim_with_bad_data.csv");
+//        transactionsBadData.forEach(IO::println);
     }
 }

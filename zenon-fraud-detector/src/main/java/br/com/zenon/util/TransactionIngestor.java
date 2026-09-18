@@ -24,7 +24,7 @@ public class TransactionIngestor {
             lines = Files.readAllLines(Paths.get(nomeArquivo));
             return lines.stream()
                     .skip(1)
-                    .limit(1000)
+                    .limit(50000)
                     .map(l -> Transaction.parseTransacao(l, contador))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
