@@ -1,59 +1,55 @@
 package br.com.zenon.fraud;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FraudAnalyzer {
 
-    public static void countFrauds(List<Transaction> transactions) {
-        long count = getTransactionStream(transactions).count();
-        IO.println("\n1. Contagem de Fraudes: " + count);
+    private final List<Transaction> transactions;
+
+    public FraudAnalyzer(List<Transaction> transactions) {
+        Objects.requireNonNull(transactions);
+        this.transactions = transactions;
     }
 
-    public static List<Transaction> biggerFrauds(List<Transaction> transactions, int qtdFrauds){
-        return getTransactionStream(transactions)
-                .sorted(Comparator.comparing(Transaction::amount).reversed())
+    public long countFrauds() {
+        return generateFraudStream().count();
+    }
+
+    public List<BigDecimal> findBiggerFrauds(int qtdFrauds){
+        return highValueFraudStream()
+                .map(Transaction::amount)
                 .limit(qtdFrauds)
                 .toList();
     }
 
-    public static void getClientsFrauds(List<Transaction> transactions) {
+    public Set<Transaction> getClientsFrauds(int qtdFrauds) {
 
-        List<Transaction> lista = biggerFrauds(transactions, 5);
-
-        Set<Transaction> biggerSuspects = lista.stream()
-                        .limit(5)
-                        .collect(Collectors.toSet());
-
-        biggerSuspects.forEach(l -> IO.println("Origin suspects: " + l.origin().name()));
+        return highValueFraudStream()
+                .limit(qtdFrauds)
+                .collect(Collectors.toSet());
     }
 
-    public static void calcularTotal(List<Transaction> transactions){
-        BigDecimal total = getTransactionStream(transactions)
+    public BigDecimal calculateTotalFraudLoss(){
+        return generateFraudStream()
                 .map(Transaction::amount)
                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-       IO.println("Valor: " + total);
     }
 
-    public static void countWithType(List<Transaction> transactions){
-        long countCashOut = getTransactionStream(transactions)
-                .filter(l -> l.type().equals(TypeEnum.CASH_OUT))
-                .count();
-
-        long countTranfer = getTransactionStream(transactions)
-                .filter(l -> l.type().equals(TypeEnum.TRANSFER))
-                .count();
-        IO.println("-CASH_OUT: " + countCashOut);
-        IO.println("-TRANSFER: " + countTranfer);
+    public Map<TypeEnum, Long> countByType(){
+        return generateFraudStream()
+                .collect(Collectors.groupingBy(Transaction::type, Collectors.counting()));
     }
-
-    private static Stream<Transaction> getTransactionStream(List<Transaction> transactions) {
+    
+    private Stream<Transaction> generateFraudStream() {
         return transactions.stream()
                 .filter(Transaction::isFraud);
+    }
+
+    private Stream<Transaction> highValueFraudStream() {
+        return generateFraudStream()
+                .sorted(Comparator.comparing(Transaction::amount).reversed());
     }
 }
