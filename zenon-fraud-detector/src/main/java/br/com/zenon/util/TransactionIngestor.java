@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TransactionIngestor {
 
+
+    public static final int MAX_TRANSACTIONS = 1000000;
+
     public static List<Transaction> read(String nomeArquivo) {
         List<Transaction> transactions  = new ArrayList<>();
         List<String> lines;
@@ -24,7 +27,7 @@ public class TransactionIngestor {
             lines = Files.readAllLines(Paths.get(nomeArquivo));
             return lines.stream()
                     .skip(1)
-                    .limit(50000)
+                    .limit(MAX_TRANSACTIONS)
                     .map(l -> Transaction.parseTransacao(l, contador))
                     .filter(Optional::isPresent)
                     .map(Optional::get)

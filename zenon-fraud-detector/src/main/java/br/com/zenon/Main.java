@@ -1,16 +1,10 @@
 package br.com.zenon;
 
-import br.com.zenon.fraud.Customer;
-import br.com.zenon.fraud.FraudAnalyzer;
-import br.com.zenon.fraud.Transaction;
-import br.com.zenon.fraud.TypeEnum;
+import br.com.zenon.fraud.*;
 import br.com.zenon.util.TransactionIngestor;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static br.com.zenon.fraud.TypeEnum.*;
 
@@ -37,6 +31,9 @@ public class Main {
         List<Transaction> transactions = TransactionIngestor.read("data/dados.csv");
         transactions.forEach(IO::println);
 
+//        List<Transaction> transactionsBadData = TransactionIngestor.read("data/paysim_with_bad_data.csv");
+//        transactionsBadData.forEach(IO::println);
+
         FraudAnalyzer fraudAnalyzer = new FraudAnalyzer(transactions);
 
         IO.println("==============================================================================");
@@ -62,7 +59,33 @@ public class Main {
         Map<TypeEnum, Long> fraudsCountByType = fraudAnalyzer.countByType();
         fraudsCountByType.forEach((type, count) -> IO.println("-%s: %d".formatted(type, count)));
 
-//        List<Transaction> transactionsBadData = TransactionIngestor.read("data/paysim_with_bad_data.csv");
-//        transactionsBadData.forEach(IO::println);
+        IO.println("==============================================================================");
+
+        TransactionRepositoryInterface transactionRepository;
+        transactionRepository = new TransactionListRepository(transactions);
+
+        String clientOriginName = "C439661237";
+        String notFoundOriginName = "C12345";
+
+        transactionRepository.findByOriginName(notFoundOriginName)
+                .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o cliente " + notFoundOriginName ));
+
+        long ini = System.nanoTime();
+        transactionRepository.findByOriginName(clientOriginName)
+                .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o cliente " +  clientOriginName));
+
+        long fim = System.nanoTime();
+
+        IO.println("LIST= Tempo (ms) : " + (fim-ini)/1_000_000.0);
+
+        transactionRepository = new TransactionMapRepository(transactions);
+
+        long iniMap = System.nanoTime();
+        transactionRepository.findByOriginName(clientOriginName)
+                .ifPresentOrElse(IO::println, () -> IO.println("Transação não encontrada para o cliente " +  clientOriginName));
+
+        long fimMap = System.nanoTime();
+
+        IO.println("MAP= Tempo (ms) : " + (fimMap-iniMap)/1_000_000.0);
     }
 }

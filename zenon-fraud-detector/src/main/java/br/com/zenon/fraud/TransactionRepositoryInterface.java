@@ -1,10 +1,8 @@
 package br.com.zenon.fraud;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-public interface TransactionListRepositoryInterface {
+public interface TransactionRepositoryInterface {
 
     Optional<Transaction> findByOriginName(String name);
 }
