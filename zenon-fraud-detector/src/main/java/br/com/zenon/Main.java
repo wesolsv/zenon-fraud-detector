@@ -2,6 +2,7 @@ package br.com.zenon;
 
 import br.com.zenon.fraud.*;
 import br.com.zenon.util.TransactionIngestor;
+import br.com.zenon.util.TransactionReport;
 
 import java.math.BigDecimal;
 import java.util.*;
