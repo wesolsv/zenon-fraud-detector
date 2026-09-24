@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TransactionIngestor {
 
 
-    public static final int MAX_TRANSACTIONS = 1000000;
+    public static final int MAX_TRANSACTIONS = 10_000;
 
     public static List<Transaction> read(String nomeArquivo) {
         List<Transaction> transactions  = new ArrayList<>();
