@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -17,9 +18,11 @@ public class EfficientTransactionIngestor {
 
     public static final int LINE_BATCH_SIZE = 2_500;
 
+    private final Semaphore dbPermits =  new Semaphore(100);
+
     public void readAsBatch(String nomeArquivo, Consumer<List<Transaction>> batchConsumer) {
         AtomicInteger contador = new AtomicInteger();
-        try (ExecutorService executor = Executors.newFixedThreadPool(10);
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
              Stream<String> lines = Files.lines(Paths.get(nomeArquivo)).skip(1)) {
             var iterator = lines.iterator();
 
@@ -31,14 +34,26 @@ public class EfficientTransactionIngestor {
                 if (lineBatch.size() >= LINE_BATCH_SIZE) {
                     IO.println("Executando Batch INGESTOR");
                     final List<String> currentLineBatch = List.copyOf(lineBatch);
-                    executor.submit(() -> executeBatch(currentLineBatch, batchConsumer));
+                    executor.submit(() -> {
+                        try{
+                            executeBatch(currentLineBatch, batchConsumer);
+                        }catch (Exception e){
+                            throw new RuntimeException(e);
+                        }
+                    });
                     lineBatch.clear();
                 }
             }
             if (!lineBatch.isEmpty()) {
                 IO.println("Batch final INGESTOR");
                 final List<String> currentLineBatch = List.copyOf(lineBatch);
-                executor.submit(() -> executeBatch(currentLineBatch, batchConsumer));
+                executor.submit(() -> {
+                    try{
+                        executeBatch(currentLineBatch, batchConsumer);
+                    }catch (Exception e){
+                        throw new RuntimeException(e);
+                    }
+                });
             }
         } catch (Exception ex) {
             System.err.println("Erro de dados: " + ex.getMessage());
@@ -51,6 +66,15 @@ public class EfficientTransactionIngestor {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
-        batchConsumer.accept(transactionBatch);
+        try {
+            dbPermits.acquire();
+            try{
+                batchConsumer.accept(transactionBatch);
+            } finally {
+                dbPermits.release();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
