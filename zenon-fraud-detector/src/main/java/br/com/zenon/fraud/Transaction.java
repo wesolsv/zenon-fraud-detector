@@ -48,4 +48,26 @@ public record Transaction(
         }
         return Optional.empty();
     }
+
+
+    public static Optional<Transaction> parseTransacaoBatch(String dados) {
+
+        String[] linha = dados.trim().split(",");
+
+        try {
+            int step = Integer.parseInt(linha[0]);
+            String type = linha[1];
+            BigDecimal amount = new BigDecimal(linha[2]);
+            Customer origin = new Customer(linha[3], new BigDecimal(linha[4]), new BigDecimal(linha[5]));
+            Customer recipient = new Customer(linha[6], new BigDecimal(linha[7]), new BigDecimal(linha[8]));
+            boolean isFraud = "1".equals(linha[9]);
+            boolean isFlaggedFraud = "1".equals(linha[10]);
+
+            return Optional.of(new Transaction(step, TypeEnum.valueOf(type), amount, origin, recipient, isFraud, isFlaggedFraud));
+
+        } catch (Exception e) {
+            System.err.println("Erro de dados: " + dados + " -> " + (e.getMessage() != null ? e.getMessage() : e));
+        }
+        return Optional.empty();
+    }
 }
